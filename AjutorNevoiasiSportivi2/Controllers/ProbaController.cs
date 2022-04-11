@@ -1,5 +1,6 @@
 ﻿using AjutorNevoiasiSportivi2.Managers;
 using AjutorNevoiasiSportivi2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> DeleteProbe([FromRoute] int id)
         {
             manager.Delete(id);
@@ -29,6 +31,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult>Create([FromBody] CreareProbModel creareProbModel)
         {
             manager.Create(creareProbModel);
@@ -36,6 +39,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> Update([FromBody] ProbaUpdateModel probaUpdateModel)
         {
             manager.Update(probaUpdateModel);

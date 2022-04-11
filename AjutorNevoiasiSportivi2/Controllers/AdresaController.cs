@@ -1,5 +1,6 @@
 ﻿using AjutorNevoiasiSportivi2.Managers;
 using AjutorNevoiasiSportivi2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "NevoiasUser")]
         public async Task<IActionResult> DeleteAdresa([FromRoute]int id)
         {
             manager.Delete(id);
@@ -37,12 +39,14 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "NevoiasUser")]
         public async Task<IActionResult>Create([FromBody]CreareAdresaModel creareAdresaModel)
         {
             manager.Create(creareAdresaModel);
             return Ok();
         }
         [HttpPut]
+        [Authorize(Policy = "NevoiasUser")]
         public async Task <IActionResult>Update([FromBody]AdresaUpdateModel adresaUpdateModel)
         {
             manager.Update(adresaUpdateModel);

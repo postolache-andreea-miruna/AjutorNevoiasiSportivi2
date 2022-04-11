@@ -1,6 +1,7 @@
 ﻿using AjutorNevoiasiSportivi2.Entities;
 using AjutorNevoiasiSportivi2.Managers;
 using AjutorNevoiasiSportivi2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +32,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> DeleteCompetitie([FromRoute] int id)
         {
             manager.Delete(id);
@@ -39,6 +41,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> Create([FromBody] CreareCompModel creareCompModel)
         {
             manager.Create(creareCompModel);
@@ -46,6 +49,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> Update([FromBody] CompetitieUpdateModel competitieUpdateModel)
         {
             manager.Update(competitieUpdateModel);
