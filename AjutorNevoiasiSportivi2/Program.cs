@@ -1,7 +1,13 @@
 using AjutorNevoiasiSportivi2.Entities;
 using AjutorNevoiasiSportivi2.Managers;
 using AjutorNevoiasiSportivi2.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,7 +15,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c=>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
+                        Enter 'Bearer' [space] and then your token in the text input below.
+                        \r\n\r\nExample: 'Bearer 12345abcdef'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name="Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
+});
+
 
 //Database connection
 //builder.Services.AddDbContext<AjutorNevoiasiSportivi2Context>(options => options.UseSqlServer(@"Server=(localdb)\\MSSQLLocalDB;Initial Catalog=ProiectSoftbinator;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"));
@@ -21,6 +57,46 @@ builder.Services.AddDbContext<AjutorNevoiasiSportivi2Context>(
         options.UseSqlServer(connectionString);
     });
 
+builder.Services.AddIdentity<User, Role>()
+    .AddEntityFrameworkStores<AjutorNevoiasiSportivi2Context>();
+//!!!!!!!!!!!!!!!!!!!!!!!!!!
+builder.Services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer("AuthScheme", options =>
+                {
+                    options.SaveToken = true;
+                    var secret = builder.Configuration.GetSection("Jwt").GetSection("SecretKey").Get<String>();//luam cheia secreta
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        RequireExpirationTime = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("NevoiasUser", policy => policy.RequireRole("NevoiasUser")
+     .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
+    opt.AddPolicy("AdministratorClubUser", policy => policy.RequireRole("AdministratorClubUser")
+     .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
+    opt.AddPolicy("DonatorUser", policy => policy.RequireRole("DonatorUser")
+     .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
+});
+
+builder.Services.AddControllersWithViews()
+        .AddNewtonsoftJson(options =>
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+//!!!!!!!!!!!!!!!!!!!!!!!!!
 
 builder.Services.AddTransient<ICompetitiiManager, CompetitiiManager>();
 builder.Services.AddTransient<ICompetitiiRepository, CompetitiiRepository>();
@@ -54,6 +130,11 @@ builder.Services.AddTransient<IDonariRepository, DonariRepository>();
 
 builder.Services.AddTransient<IInscriereManager, InscriereManager>();
 builder.Services.AddTransient<IInscriereRepository, InscriereRepository>();
+
+builder.Services.AddTransient<IAuthenticationManager, AuthenticationManager>();
+builder.Services.AddTransient<ITokenManager, TokenManager>();
+
+
 
 var app = builder.Build();
 

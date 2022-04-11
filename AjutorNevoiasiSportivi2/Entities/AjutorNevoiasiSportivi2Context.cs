@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace AjutorNevoiasiSportivi2.Entities
 {
-    public class AjutorNevoiasiSportivi2Context:DbContext
+    public class AjutorNevoiasiSportivi2Context:IdentityDbContext<User,Role,string,IdentityUserClaim<string>,
+        UserRole,IdentityUserLogin<string>,IdentityRoleClaim<string>,IdentityUserToken<string>>
     {
         public AjutorNevoiasiSportivi2Context(DbContextOptions<AjutorNevoiasiSportivi2Context> options) : base(options){}
         public DbSet<Adresa> Adrese { get; set; }
@@ -15,17 +18,39 @@ namespace AjutorNevoiasiSportivi2.Entities
         public DbSet<IstoricParticipare> IstoricParticipari { get; set; }
         public DbSet<Proba> Probe { get; set; }
         public DbSet<Sport>Sporturi { get; set; }
-        public DbSet<TalentatNevoias> TalentatNevoiasi { get; set; }   
-        
-/*        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder
-                //.UseLazyLoadingProxies()
-                //.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
-                .UseSqlServer(@"Server=(localdb)\\MSSQLLocalDB;Initial Catalog=ProiectSoftbinator;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-        }*/
+        public DbSet<TalentatNevoias> TalentatNevoiasi { get; set; } 
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+
+        /*        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                {
+                    optionsBuilder
+                        //.UseLazyLoadingProxies()
+                        //.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
+                        .UseSqlServer(@"Server=(localdb)\\MSSQLLocalDB;Initial Catalog=ProiectSoftbinator;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                }*/
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
+            
+            base.OnModelCreating(builder);
+
+            builder.Entity<User>(b =>
+            {
+                b.HasMany(e => e.UserRoles)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(ur => ur.UserId)
+                    .IsRequired();
+            });
+
+            builder.Entity<Role>(b =>
+            {
+                b.HasMany(e => e.UserRoles)
+                    .WithOne(e => e.Role)
+                    .HasForeignKey(ur => ur.RoleId)
+                    .IsRequired();
+            });
             //relatia 1-1
             builder.Entity<TalentatNevoias>()
                 .HasOne(t => t.Adresa)
