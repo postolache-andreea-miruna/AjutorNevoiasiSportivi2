@@ -32,7 +32,7 @@ namespace AjutorNevoiasiSportivi2.Services
                 emailMessage.Body = emailBodyBuilder.ToMessageBody();
                 
                 SmtpClient emailClient = new SmtpClient();
-                emailClient.Connect("smtp.ethernal.email", 587, true);
+                emailClient.Connect("smtp.gmail.com", 465, true);
                 emailClient.Authenticate(_emailSettings.EmailId, _emailSettings.Password);
                 emailClient.Send(emailMessage);
                 emailClient.Disconnect(true);
