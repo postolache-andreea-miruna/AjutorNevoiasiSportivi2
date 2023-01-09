@@ -21,7 +21,9 @@ namespace AjutorNevoiasiSportivi2.Managers
                     NumeNevoias = x.NumeNevoias,
                     PrenumeNevoias=x.PrenumeNevoias,
                     SportTalent = x.SportTalent,
-                    DeAjutat = x.DeAjutat
+                    DeAjutat = x.DeAjutat,
+                    Email = x.Email,
+                    Telefon = x.Telefon
                 })
                 .OrderBy(x => x.Id)
                 .ToList();

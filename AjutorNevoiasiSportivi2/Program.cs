@@ -9,11 +9,28 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using AjutorNevoiasiSportivi2.Configurations;
 using AjutorNevoiasiSportivi2.Services;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
+var SpecificOrigins = "_allowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+/*    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+            .WithHeaders(HeaderNames.ContentType);
+        });*/
+    options.AddPolicy(name: SpecificOrigins,
+                       builder =>
+                       {
+                           builder.WithOrigins("http://localhost:4200")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                       });
+});
 
 // Add services to the container.
-//azi ultima modif
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 //
 builder.Services.AddControllers();
@@ -21,6 +38,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c=>
 {
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "AjutorNevoiasiSportivi2", Version= "v1" });///////////////////
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
@@ -95,6 +113,14 @@ builder.Services.AddAuthorization(opt =>
      .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
     opt.AddPolicy("DonatorUser", policy => policy.RequireRole("DonatorUser")
      .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
+
+    opt.AddPolicy("DonatorUserOrAdmin", policy => policy
+    .RequireRole("DonatorsUser", "AdministratorClubUser")
+     .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
+
+    opt.AddPolicy("NevoiasUserOrAdmin", policy => policy
+    .RequireRole("NevoiasUser", "AdministratorClubUser")
+     .RequireAuthenticatedUser().AddAuthenticationSchemes("AuthScheme").Build());
 });
 
 builder.Services.AddControllersWithViews()
@@ -152,12 +178,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors(SpecificOrigins);////////!!!!!!!!!!!!!!
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AjutorNevoiasiSportivi2.Migrations
 {
     [DbContext(typeof(AjutorNevoiasiSportivi2Context))]
-    [Migration("20220411083335_AddedUserRoles")]
-    partial class AddedUserRoles
+    [Migration("20221125140040_AdaugTabele")]
+    partial class AdaugTabele
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

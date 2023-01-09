@@ -46,5 +46,12 @@ namespace AjutorNevoiasiSportivi2.Controllers
                 return BadRequest("Exception caught");
             }
         }
+
+        [HttpPost("role")]
+        public async Task<IActionResult> Rol([FromBody] LoginUserModel model)
+        {
+            var rol = await authenticationManager.Rol(model);
+            return Ok(rol);
+        }
     }
 }

@@ -6,5 +6,6 @@ namespace AjutorNevoiasiSportivi2.Managers
     {
         Task Signup(SignupUserModel signupUserModel);
         Task<TokenModel> Login(LoginUserModel loginUserModel);
+        Task<IList<string>> Rol(LoginUserModel loginUserModel);
     }
 }

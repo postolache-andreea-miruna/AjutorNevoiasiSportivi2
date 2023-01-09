@@ -50,6 +50,17 @@ namespace AjutorNevoiasiSportivi2.Managers
             //throw new NotImplementedException();
         }
 
-        
+        public async Task<IList<string>> Rol(LoginUserModel loginUserModel)
+        {
+            var user = await userManager.FindByEmailAsync(loginUserModel.Email);
+            if (user != null)
+            {
+                var role = await userManager.GetRolesAsync(user);
+                return role;
+            }
+            return null;
+        }
+
+
     }
 }

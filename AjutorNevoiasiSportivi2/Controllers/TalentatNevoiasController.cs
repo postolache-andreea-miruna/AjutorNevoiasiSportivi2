@@ -29,7 +29,7 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "NevoiasUser")]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> DeleteNevoias([FromRoute] int id)
         {
             manager.Delete(id);
@@ -38,15 +38,16 @@ namespace AjutorNevoiasiSportivi2.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "NevoiasUser")]
+        [Authorize(Policy = "AdministratorClubUser")]
         public async Task<IActionResult> Create([FromBody] CreareNevoiasModel creareNevoiasModel)
         {
             manager.Create(creareNevoiasModel);
             return Ok();
         }
 
+        
+        [Authorize(Policy = "NevoiasUserOrAdmin")]
         [HttpPut]
-        [Authorize(Policy = "NevoiasUser")]
         public async Task<IActionResult> Update([FromBody] NevoiasUpdateModel nevoiasUpdateModel)
         {
             manager.Update(nevoiasUpdateModel);

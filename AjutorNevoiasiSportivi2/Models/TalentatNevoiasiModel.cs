@@ -7,6 +7,8 @@
         public string PrenumeNevoias { get; set; }
         public string SportTalent { get; set; }
         public bool DeAjutat { get; set; }
+        public string Email { get; set; }
+        public string Telefon { get; set; }
 
     }
 }
